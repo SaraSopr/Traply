@@ -36,12 +36,12 @@ DEFAULT_CATEGORIES = [
 ]
 
 CATEGORY_TO_EXPERIENCE = {
-    "museum": "cultura", "art gallery": "cultura",
-    "historic site": "cultura", "theater": "cultura",
-    "tourist attraction": "svago", "park": "natura",
-    "beach": "natura", "zoo": "natura",
-    "restaurant": "cibo", "cafe": "cibo", "bar": "cibo", "market": "cibo",
-    "shopping mall": "shopping", "night club": "vita_notturna", "hotel": "alloggio",
+    "museum": "culture", "art gallery": "culture",
+    "historic site": "culture", "theater": "culture",
+    "tourist attraction": "leisure", "park": "nature",
+    "beach": "nature", "zoo": "nature",
+    "restaurant": "food", "cafe": "food", "bar": "food", "market": "food",
+    "shopping mall": "shopping", "night club": "nightlife", "hotel": "accommodation",
 }
 
 
@@ -129,7 +129,7 @@ class ApifyCollector:
             "place_id":         item.get("placeId") or item.get("id"),
             "name":             item.get("title") or item.get("name"),
             "category":         category,
-            "experience_type":  CATEGORY_TO_EXPERIENCE.get(category, "altro"),
+            "experience_type":  CATEGORY_TO_EXPERIENCE.get(category, "other"),
             "address":          item.get("address"),
             "city":             item.get("city"),
             "lat":              location.get("lat") or item.get("lat"),

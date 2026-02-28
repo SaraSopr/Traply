@@ -22,17 +22,16 @@ import pandas as pd
 from typing import Optional
 
 # ── Archetype profiles ───────────────────────────────────────────────────────
-# Each archetype has a weight for each experience category.
-# High values = strong preference for that category.
+# Fully English domain keys.
 ARCHETYPE_PROFILES = {
     "family": {
-        "cultura":        0.6,
-        "natura":         0.9,
-        "cibo":           0.8,
+        "culture":        0.6,
+        "nature":         0.9,
+        "food":           0.8,
         "shopping":       0.4,
-        "vita_notturna":  0.1,
-        "svago":          0.9,
-        "altro":          0.5,
+        "nightlife":      0.1,
+        "leisure":        0.9,
+        "other":          0.5,
         # Behavioral parameters
         "budget_mean":    2.0,   # average tolerated price_tier
         "budget_std":     0.5,
@@ -40,39 +39,39 @@ ARCHETYPE_PROFILES = {
         "group_size_mean": 4,
     },
     "couple": {
-        "cultura":        0.8,
-        "natura":         0.7,
-        "cibo":           0.9,
+        "culture":        0.8,
+        "nature":         0.7,
+        "food":           0.9,
         "shopping":       0.6,
-        "vita_notturna":  0.7,
-        "svago":          0.6,
-        "altro":          0.5,
+        "nightlife":      0.7,
+        "leisure":        0.6,
+        "other":          0.5,
         "budget_mean":    2.8,
         "budget_std":     0.7,
         "trip_days_mean": 3.5,
         "group_size_mean": 2,
     },
-    "solo": {
-        "cultura":        0.9,
-        "natura":         0.6,
-        "cibo":           0.7,
+    "single": {
+        "culture":        0.9,
+        "nature":         0.6,
+        "food":           0.7,
         "shopping":       0.4,
-        "vita_notturna":  0.6,
-        "svago":          0.7,
-        "altro":          0.6,
+        "nightlife":      0.6,
+        "leisure":        0.7,
+        "other":          0.6,
         "budget_mean":    1.8,
         "budget_std":     0.6,
         "trip_days_mean": 2.5,
         "group_size_mean": 1,
     },
     "group": {
-        "cultura":        0.5,
-        "natura":         0.6,
-        "cibo":           0.8,
+        "culture":        0.5,
+        "nature":         0.6,
+        "food":           0.8,
         "shopping":       0.7,
-        "vita_notturna":  0.9,
-        "svago":          0.9,
-        "altro":          0.5,
+        "nightlife":      0.9,
+        "leisure":        0.9,
+        "other":          0.5,
         "budget_mean":    2.2,
         "budget_std":     0.6,
         "trip_days_mean": 3.0,
@@ -80,7 +79,7 @@ ARCHETYPE_PROFILES = {
     },
 }
 
-EXPERIENCE_TYPES = ["cultura", "natura", "cibo", "shopping", "vita_notturna", "svago", "altro"]
+EXPERIENCE_TYPES = ["culture", "nature", "food", "shopping", "nightlife", "leisure", "other"]
 ARCHETYPES = list(ARCHETYPE_PROFILES.keys())
 
 
@@ -99,7 +98,7 @@ class SyntheticUserGenerator:
             budget_max, trip_days, group_size, age_range
         """
         rows = []
-        # Archetype distribution: families 30%, couples 30%, solo 25%, groups 15%
+        # Archetype distribution: families 30%, couples 30%, singles 25%, groups 15%
         archetype_probs = [0.30, 0.30, 0.25, 0.15]
 
         for i in range(n):
@@ -211,7 +210,7 @@ class SyntheticUserGenerator:
         ranges = {
             "family": ["30-40", "35-45", "40-50"],
             "couple": ["25-35", "30-40", "35-45"],
-            "solo":   ["20-30", "25-35", "30-40"],
+            "single": ["20-30", "25-35", "30-40"],
             "group":  ["20-30", "22-32", "25-35"],
         }
         return str(self.rng.choice(ranges.get(archetype, ["25-35"])))

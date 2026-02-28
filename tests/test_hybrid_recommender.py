@@ -39,7 +39,7 @@ class TestHybridRecommender(unittest.TestCase):
                 "activity_id": ["A1", "A2", "A3", "A4"],
                 "name": ["Museo", "Risto", "Parco", "Club"],
                 "category": ["museum", "restaurant", "park", "bar"],
-                "experience_type": ["cultura", "cibo", "natura", "vita_notturna"],
+                "experience_type": ["culture", "food", "nature", "nightlife"],
                 "rating": [4.5, 4.2, 4.4, 4.1],
                 "review_count": [100, 120, 80, 90],
                 "price_tier": [2, 2, 1, 3],
@@ -54,8 +54,8 @@ class TestHybridRecommender(unittest.TestCase):
             {
                 "user_id": ["U1", "U2"],
                 "preferences_json": [
-                    json.dumps({"cultura": 0.9, "cibo": 0.7, "natura": 0.5, "shopping": 0.2, "vita_notturna": 0.1, "svago": 0.4, "altro": 0.2}),
-                    json.dumps({"cultura": 0.3, "cibo": 0.8, "natura": 0.6, "shopping": 0.4, "vita_notturna": 0.5, "svago": 0.7, "altro": 0.3}),
+                    json.dumps({"culture": 0.9, "food": 0.7, "nature": 0.5, "shopping": 0.2, "nightlife": 0.1, "leisure": 0.4, "other": 0.2}),
+                    json.dumps({"culture": 0.3, "food": 0.8, "nature": 0.6, "shopping": 0.4, "nightlife": 0.5, "leisure": 0.7, "other": 0.3}),
                 ],
                 "budget_max": [3, 3],
             }

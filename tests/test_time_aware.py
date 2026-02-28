@@ -10,7 +10,7 @@ class TestTimeAwareLayer(unittest.TestCase):
         self.activities = pd.DataFrame(
             {
                 "activity_id": ["A1", "A2", "A3"],
-                "experience_type": ["cultura", "cibo", "vita_notturna"],
+                "experience_type": ["culture", "food", "nightlife"],
                 "opening_hours": [None, None, None],
             }
         )

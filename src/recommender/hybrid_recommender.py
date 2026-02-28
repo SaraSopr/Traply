@@ -100,7 +100,7 @@ class ContentBasedRecommender:
             raise RuntimeError("Call fit() before score_for_user()")
 
         # Build user vector aligned with TF-IDF features
-        experience_types = ["cultura", "natura", "cibo", "shopping", "vita_notturna", "svago", "altro"]
+        experience_types = ["culture", "nature", "food", "shopping", "nightlife", "leisure", "other"]
         user_text = " ".join([
             exp for exp in experience_types
             if user_preferences.get(exp, 0) > 0.5
@@ -304,7 +304,7 @@ class HybridRecommender:
             user_id:        User ID (must exist in users_df)
             top_n:          Number of activities to return
             context:        Optional contextual signals:
-                            {"budget_max": 2, "experience_filter": ["cultura"]}
+                            {"budget_max": 2, "experience_filter": ["culture"]}
             exclude_seen:   Exclude activities already rated by user
 
         Returns:
@@ -325,7 +325,7 @@ class HybridRecommender:
         # ── Retrieve user profile ────────────────────────────────────────────
         if user_id not in self.users_df.index:
             log.warning(f"User {user_id} not found. Using neutral profile.")
-            preferences = {exp: 0.5 for exp in ["cultura", "natura", "cibo", "shopping", "vita_notturna", "svago", "altro"]}
+            preferences = {exp: 0.5 for exp in ["culture", "nature", "food", "shopping", "nightlife", "leisure", "other"]}
             budget_max  = context.get("budget_max", 3)
         else:
             user = self.users_df.loc[user_id]

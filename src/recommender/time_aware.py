@@ -38,39 +38,39 @@ SEASONS    = ["spring", "summer", "autumn", "winter"]
 # Source: tourism literature + common sense
 TIME_PRIOR = {
 #                        morn  aftn  even  nght
-    "cultura":          [0.90, 0.75, 0.35, 0.05],
-    "natura":           [0.85, 0.90, 0.60, 0.10],
-    "cibo":             [0.55, 0.75, 0.95, 0.65],
+    "culture":          [0.90, 0.75, 0.35, 0.05],
+    "nature":           [0.85, 0.90, 0.60, 0.10],
+    "food":             [0.55, 0.75, 0.95, 0.65],
     "shopping":         [0.50, 0.95, 0.55, 0.05],
-    "vita_notturna":    [0.05, 0.15, 0.80, 1.00],
-    "svago":            [0.70, 0.85, 0.65, 0.20],
-    "alloggio":         [0.30, 0.30, 0.80, 0.90],
-    "altro":            [0.60, 0.70, 0.60, 0.30],
+    "nightlife":        [0.05, 0.15, 0.80, 1.00],
+    "leisure":          [0.70, 0.85, 0.65, 0.20],
+    "accommodation":    [0.30, 0.30, 0.80, 0.90],
+    "other":            [0.60, 0.70, 0.60, 0.30],
 }
 
 # Weekend vs weekday prior: many activities are more popular on weekends
 WEEKEND_BOOST = {
-    "cultura":       1.10,
-    "natura":        1.15,
-    "cibo":          1.10,
+    "culture":       1.10,
+    "nature":        1.15,
+    "food":          1.10,
     "shopping":      1.20,
-    "vita_notturna": 1.25,
-    "svago":         1.20,
-    "alloggio":      1.00,
-    "altro":         1.05,
+    "nightlife":     1.25,
+    "leisure":       1.20,
+    "accommodation": 1.00,
+    "other":         1.05,
 }
 
 # Seasonal prior: boost/penalty by season
 SEASON_MULTIPLIER = {
 #                    spring  summer  autumn  winter
-    "natura":       [1.10,   1.20,   1.05,   0.75],
-    "cibo":         [1.00,   1.00,   1.00,   1.00],
-    "cultura":      [1.00,   0.90,   1.05,   1.10],  # museums more visited in winter
-    "vita_notturna":[1.05,   1.20,   1.00,   0.85],
-    "svago":        [1.05,   1.15,   1.00,   0.80],
+    "nature":       [1.10,   1.20,   1.05,   0.75],
+    "food":         [1.00,   1.00,   1.00,   1.00],
+    "culture":      [1.00,   0.90,   1.05,   1.10],  # museums more visited in winter
+    "nightlife":    [1.05,   1.20,   1.00,   0.85],
+    "leisure":      [1.05,   1.15,   1.00,   0.80],
     "shopping":     [1.00,   0.95,   1.10,   1.15],  # holiday shopping effect
-    "alloggio":     [1.00,   1.00,   1.00,   1.00],
-    "altro":        [1.00,   1.00,   1.00,   1.00],
+    "accommodation": [1.00,   1.00,   1.00,   1.00],
+    "other":        [1.00,   1.00,   1.00,   1.00],
 }
 
 
@@ -173,7 +173,7 @@ class TimeAwareScorer:
         scores = np.zeros(len(activities_df))
 
         for i, (_, row) in enumerate(activities_df.iterrows()):
-            exp_type = row.get("experience_type", "altro")
+            exp_type = row.get("experience_type", "other")
 
             # 1. Base score from slot
             prior = self._get_prior(exp_type)
@@ -209,7 +209,7 @@ class TimeAwareScorer:
 
                 Logic:
                     If users rate museums highly in the evening (against the prior),
-                    the system learns and increases the weight for "cultura × evening".
+                    the system learns and increases the weight for "culture × evening".
 
                 This transforms static prior into a data-learned model —
                 a key point for the thesis methodology section.
@@ -347,7 +347,7 @@ class TimeAwareScorer:
         """Returns prior (learned if available, static otherwise)."""
         if self._fitted and experience_type in self.learned:
             return self.learned[experience_type]
-        return self.prior.get(experience_type, self.prior["altro"])
+        return self.prior.get(experience_type, self.prior["other"])
 
     @staticmethod
     def _season_multiplier(experience_type: str, season_idx: int) -> float:
@@ -368,10 +368,10 @@ class TimeAwareScorer:
             if not hours:
                 return 1.0
             # Simplified rule: bars/restaurants likely closed very early morning
-            exp_type = row.get("experience_type", "altro")
-            if exp_type == "vita_notturna" and hour < 18:
+            exp_type = row.get("experience_type", "other")
+            if exp_type == "nightlife" and hour < 18:
                 return 0.1
-            if exp_type == "cibo" and hour < 7:
+            if exp_type == "food" and hour < 7:
                 return 0.2
             return 1.0
         except Exception:
@@ -406,9 +406,9 @@ if __name__ == "__main__":
     # Mock activities
     activities = pd.DataFrame({
         "activity_id":    [f"ACT_{i:03d}" for i in range(6)],
-        "name":           ["Museo Borghese", "Ristorante Da Mario", "Bar San Carlo",
-                           "Villa Borghese", "Club Goa", "Mercato Testaccio"],
-        "experience_type":["cultura", "cibo", "cibo", "natura", "vita_notturna", "cibo"],
+        "name":           ["Borghese Museum", "Mario's Restaurant", "San Carlo Bar",
+                           "Borghese Gardens", "Goa Club", "Testaccio Market"],
+        "experience_type":["culture", "food", "food", "nature", "nightlife", "food"],
         "opening_hours":  [None] * 6,
         "rating":         [4.8, 4.5, 4.2, 4.6, 4.3, 4.7],
     })
@@ -427,7 +427,7 @@ if __name__ == "__main__":
 
     # Explain
     print("\n── Contextual explanation ──")
-    ctx_sera = TemporalContext(slot="evening", day_type="weekend", season="summer")
-    for exp in ["cultura", "cibo", "vita_notturna"]:
-        exp_info = scorer.explain(exp, ctx_sera)
+    evening_context = TemporalContext(slot="evening", day_type="weekend", season="summer")
+    for exp in ["culture", "food", "nightlife"]:
+        exp_info = scorer.explain(exp, evening_context)
         print(f"  {exp:<18} score={exp_info['time_score']:.2f}  | {exp_info['explanation']}")

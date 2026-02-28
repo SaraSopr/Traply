@@ -108,7 +108,7 @@ class VectorSemanticRecommender:
             weight = max(1, int(round(float(value) * 3)))
             tokens.extend([experience_type] * weight)
         if not tokens:
-            return "cultura natura cibo svago"
+            return "culture nature food leisure"
         return " ".join(tokens)
 
     @staticmethod
