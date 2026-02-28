@@ -1,29 +1,29 @@
 ![logo](image.png)
 # 🗺️ Travel Recommender System
 
-Hybrid recommendation engine con **persistenza PostgreSQL**.
-I dati Apify vengono fetchati **una sola volta** e conservati nel DB per sempre.
+Hybrid recommendation engine con persistenza PostgreSQL.
+I dati Apify vengono fetchati una sola volta e riutilizzati dal DB.
 
 ---
 
-## Struttura
+## Project structure
 
 ```
-travel_recommender/
-├── main.py                              # Pipeline end-to-end
+Traply/
+├── main.py                              # End-to-end pipeline
 ├── .env                                 # APIFY_API_TOKEN, DATABASE_URL
 ├── requirements.txt
 │
 ├── src/
 │   ├── collectors/
-│   │   ├── apify_collector.py           # Fetch Apify + save DB in real-time
-│   │   └── synthetic_users.py           # Genera utenti e rating sintetici
+│   │   ├── apify_collector.py           # Apify fetch + realtime DB persistence
+│   │   └── synthetic_users.py           # Synthetic users and ratings generation
 │   ├── recommender/
 │   │   ├── hybrid_recommender.py        # CB + CF + Time-Aware + Vector
-│   │   ├── time_aware.py                # Layer temporale contestuale
-│   │   └── vector_layer.py              # Embeddings sentence-BERT
+│   │   ├── time_aware.py                # Temporal contextual layer
+│   │   └── vector_layer.py              # sentence-BERT embeddings
 │   └── utils/
-│       └── database.py                  # PostgreSQL manager (SQLAlchemy)
+│       └── database.py                  # PostgreSQL manager (SQLAlchemy + pgvector)
 │
 ├── tests/
 │   ├── test_project_structure.py
@@ -31,15 +31,13 @@ travel_recommender/
 │   ├── test_time_aware.py
 │   ├── test_database_utils.py
 │   └── test_hybrid_recommender.py
-│
-└── *.py                                 # wrapper legacy (compatibilità)
 ```
 
 ---
 
-## Setup (10 minuti)
+## Setup
 
-### 1. Avvia PostgreSQL con Docker
+### 1) Start PostgreSQL (Docker)
 ```bash
 docker run --name travel-db \
   -e POSTGRES_PASSWORD=travel123 \
@@ -47,60 +45,70 @@ docker run --name travel-db \
   -p 5432:5432 -d postgres:15
 ```
 
-### 2. Configura il progetto
+### 2) Install dependencies
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Nel file `.env` imposta:
+Set `.env` with:
 ```bash
 APIFY_API_TOKEN=apify_api_YOUR_TOKEN
 DATABASE_URL=postgresql://postgres:travel123@localhost:5432/travel_recommender
 ```
 
-### 3. Lancia la pipeline
+### 3) Run pipeline
 ```bash
-# Prima volta: fetcha da Apify e salva nel DB
-python main.py --city "Roma, Italia" --n-users 300
+# First run: fetch from Apify and save into DB
+./.venv/bin/python main.py --city "Rome, Italy" --n-users 300
 
-# Volte successive: legge dal DB (zero costi Apify!)
-python main.py --city "Roma, Italia"
+# Next runs: read directly from DB (no additional Apify cost)
+./.venv/bin/python main.py --city "Rome, Italy"
 
-# Forza aggiornamento dati dopo 30 giorni
-python main.py --city "Roma, Italia" --force-refresh
+# Force refresh after stale data window
+./.venv/bin/python main.py --city "Rome, Italy" --force-refresh
 ```
 
 ---
 
-## Logica anti-spreco Apify
+## Domain keys (experience_type)
+
+The runtime pipeline uses English-only domain labels:
+
+`culture`, `nature`, `food`, `shopping`, `nightlife`, `leisure`, `accommodation`, `other`.
+
+---
+
+## Apify cost-saving logic
 
 ```
-Ogni chiamata a main.py:
+Every run of `main.py`:
     ┌─────────────────────────┐
-    │ Dati Roma nel DB?       │
-    │ e fetchati < 30 giorni? │
+  │ City data already in DB?│
+  │ and fetched < 30 days?  │
     └────────┬────────────────┘
-             │ Sì ──→ carica dal DB  💰 GRATIS
-             │ No ──→ chiama Apify
-             │         └─→ salva nel DB categoria per categoria
-             │             (sicuro anche se crasha a metà)
+       │ Yes ──→ load from DB
+       │ No  ──→ call Apify
+       │         └─→ save to DB category-by-category
+       │             (safe even if process stops)
 ```
 
 ---
 
-## Tabelle DB
+## DB tables
 
 | Tabella | Contenuto |
 |---------|-----------|
-| `activities` | POI fetchati da Apify (permanenti) |
-| `users` | Profili utente reali + sintetici |
-| `ratings` | Interazioni utente-attività |
-| `recommendation_cache` | Raccomandazioni precalcolate (TTL 24h) |
-| `apify_fetch_log` | Registro chiamate + costi Apify |
+| `activities` | POIs fetched from Apify |
+| `users` | Real + synthetic user profiles |
+| `ratings` | User-activity interactions |
+| `recommendation_cache` | Cached recommendations (TTL 24h) |
+| `apify_fetch_log` | Apify fetch audit log |
 
 ---
 
-## Prossimi step
+## Status
 
 - [x] Vector layer (sentence-BERT embeddings su PostgreSQL + pgvector)
 - [ ] Itinerary optimizer (TSP con OR-Tools)
@@ -112,5 +120,5 @@ Ogni chiamata a main.py:
 ## Test
 
 ```bash
-python -m unittest discover -s tests -v
+./.venv/bin/python -m unittest discover -s tests -p 'test_*.py'
 ```
