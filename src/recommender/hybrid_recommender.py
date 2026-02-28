@@ -40,15 +40,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import svds
 from typing import Optional
-try:
-    from src.recommender.time_aware import TimeAwareScorer, TemporalContext
-except ModuleNotFoundError:
-    from time_aware import TimeAwareScorer, TemporalContext
-
-try:
-    from src.recommender.vector_layer import VectorSemanticRecommender
-except ModuleNotFoundError:
-    from vector_layer import VectorSemanticRecommender
+from src.recommender.time_aware import TimeAwareScorer, TemporalContext
+from src.recommender.vector_layer import VectorSemanticRecommender
 
 log = logging.getLogger(__name__)
 
